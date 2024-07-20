@@ -1,10 +1,17 @@
-<nav>
+<link rel="stylesheet" href="styles.css">
+<nav class="navbar">
     <ul>
-        <li><strong>FOTOTECA </strong></li>
+        <li><strong>PHOTO GALLERY </strong></li>
     </ul>
     <ul>
-        <li><a href="/">Mostrar Imágenes</a></li>
-        <li><a href="/add-image-form">Añadir Imagen</a></li>
+        <li><a href="/">Show Images</a></li>
+        <li><a href="/add-image-form">Add Image</a></li>
+    </ul>
+    <ul>
+        <form class="search-image-by-name" action="/search" method="get">
+            <input type="text" name="keyword" id="keyword" placeholder="Search...">
+            <input type="submit" value="Search">
+        </form>
     </ul>
 </nav>
 

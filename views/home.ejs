@@ -13,17 +13,39 @@
     <main class="container">
         <!-- Si no hay imagenes en la fototeca animamos al usuario a aádir de nuevas. En caso contrario monstramos el numero de imagenes que continue la fototeca -->
         <% if (images.length == 0) { %>
-        <p> Todavía no hay imagenes en la fototeca. <a href="/add-image-form">Añade una ahora </a></p>
+        <p> There are no images in the photo gallery yet. <a href="/add-image-form">Add one now</a></p>
         <% } else { %>
-            <p>La fototeca tiene actualmente <%= images.length %> imágenes.</p>
+            <p>The photo gallery currently has <%= images.length %> images.</p>
         <% } %>    
-            <section class="grid">
-                <% for (const image of images) { %>
-                    <article>
-                        <%= image.title %>
-                    </article>
+        <section class="grid">
+            <% images.forEach(image => { %>
+                <article>
+                    <h2><%= image.title.toUpperCase() %></h2>
+                    <p><%= image.imageDate %></p>
+                    <img src="<%= image.imageUrl %>" alt="<%= image.title %>">
+                    <p><%= image.description %></p>
+                    <% if (image.predominantColor) { %>
+                        <div class="color-box" style="background-color: <%= image.predominantColor %>;">
+                            <p><%= image.predominantColor %></p>
+                        </div>
                     <% } %>
-            </section>
+                    <form action="/images/<%= image.id %>/delete" method="post" onsubmit="confirmDelete(event, '<%= image.title %>')">
+                        <input class="button__delete" type="submit" value="Delete">
+                    </form>
+                </article>
+            <% }); %>
+        </section>
     </main>
+    <script>
+        // Función para confirmar la eliminación de una imagen
+        function confirmDelete(event, title) {
+            const mustDelete = confirm(`Are you sure you want to delete this image: "${title}"?`);
+
+            // Si el usuario elige NO, evita el envío del formulario
+            if (!mustDelete) {
+                event.preventDefault();
+            }
+        }
+    </script>
 </body>
 </html>

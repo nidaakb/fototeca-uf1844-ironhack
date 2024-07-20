@@ -6,20 +6,47 @@
     <title>Add New Image</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <link rel="stylesheet" href="styles.css">
+    <script defer src="form.js"></script>
 </head>
 <body>
     <header class="container">
         <%-  include('./partials/nav');%>
     </header>
     <form class="container" action="/add-image-form" method="post">
-        <label for="title">Nombre</label>
-        <input type="text" name="title" id="title" required>
-        <input type="submit" value="Añadir">
-    </form>
-        <!-- Mostrar un mensaje de confirmación si el usuario acaba de insertar una imagen en la "base de datos"-->
-        <% if (isImagePostedOk) { %>
-            <div class="container alert success"> Imagen insertada correctamente</div>
-        <% } %>
+        <label for="title">Name</label>
+        <input type="text" name="title" id="title" maxlength="30" required>
+
+        <label for="imageUrl">URL</label>
+        <input type="url" name="imageUrl" id="imageUrl" required>
+
+        <label for="imageDate">Date</label>
+        <input type="date" name="imageDate" id="imageDate" required>
         
+        <label for="description">Description</label>
+        <input type="text" name="description" id="description" maxlength="150">
+
+        <label for="label">Label</label>
+        <select name="label" id="label" required>
+            <option value="seleccionar">Select one</option>
+            <option value="wildlife">Wildlife</option>
+            <option value="nature">Nature and Landscapes</option>
+            <option value="travel">Travel and Adventure</option>
+            <option value="art">Art and Illustrations</option>
+            <option value="portraits">People and Portraits</option>
+        </select>
+        
+        <input type="submit" value="Añadir a galería">
+
+    
+    </form>
+        <!-- Mostrar un mensaje de confirmación si el usuario acaba de insertar una imagen --> 
+
+        <% if (typeof isImagePostedOk !== 'undefined') { %>
+            <% if (isImagePostedOk === true) { %>
+                <div class="container alert success">Image inserted correctly</div>
+            <% } else if (isImagePostedOk === false) { %>
+                <div class="container alert error"><%= message %></div>
+            <% } %>
+        <% } %>
 </body>
 </html>
