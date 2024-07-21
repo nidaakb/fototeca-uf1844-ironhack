@@ -19,7 +19,7 @@
 
 - The server will listen on the port specified in the `PORT` environment variable or on port 4000 by default.
 
-- The URL https://photo-gallery-n2i3.onrender.com/ allows you to access to the photo gallery hosted on Render.com. By entering this address into your browser, you can view and explore the Photo Gallery IronHack 2024 that has been deployed on this platform.
+- The URL https://photo-gallery-n2i3.onrender.com/ allows you to access to the photo gallery hosted on Render.com. By entering this address into your browser, you can see the photos, browse through them, and engage with the gallery's features.
 
 
 
