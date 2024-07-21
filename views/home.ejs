@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fototeca IronHack 2024</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" /> 
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header class="container">
@@ -22,12 +23,15 @@
                 <article>
                     <h2><%= image.title.toUpperCase() %></h2>
                     <p><%= image.imageDate %></p>
+                    <div class="image-container" >
                     <img src="<%= image.imageUrl %>" alt="<%= image.title %>">
+                </div>
                     <p><%= image.description %></p>
-                    <% if (image.predominantColor) { %>
-                        <div class="color-box" style="background-color: <%= image.predominantColor %>;">
-                            <p><%= image.predominantColor %></p>
-                        </div>
+                    <div class="image-details">
+                        <% if (image.predominantColor) { %>
+                            <div class="color-box" style="background-color: <%= image.predominantColor %>;">
+                                <p><%= image.predominantColor %></p>
+                            </div>
                     <% } %>
                     <form action="/images/<%= image.id %>/delete" method="post" onsubmit="confirmDelete(event, '<%= image.title %>')">
                         <input class="button__delete" type="submit" value="Delete">

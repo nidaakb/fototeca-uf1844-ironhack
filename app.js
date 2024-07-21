@@ -1,4 +1,4 @@
-// Import third party modules
+// Import third party modules that are being used in the project
 const express = require('express');
 const morgan = require('morgan');
 const Vibrant = require('node-vibrant');
@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true}));
 // Añadimos un nuevo middleware para que el cliente pueda hacer peitciones GET a los recursos publicos que se encuentran en la carpeta public
 app.use(express.static('public'));
 
-// Varible para indicar en que puerto tiene que escuchar nuestra app
+// Varible para indicar en que puerto tiene que escuchar nuestra app (En este caso "localhost:4000)
 // process.env.PORT en render.com
 // 3000 lo quiero usar para desarrollo local 
 console.log("valor del PORT: ", process.env.PORT)
@@ -21,11 +21,11 @@ const PORT = process.env.PORT || 4000;
 // Especificar a Express que quiero usar EJS como motor de plantillas
 app.set('view engine', 'ejs');
 
-// We use the morgan middleware to log client petitions
+// We use the morgan middleware to log client requests
 app.use(morgan('dev'));
 
 
-// Creamos base de datos
+// Creamos base de datos de imagenes
 //const images = [];
 let id = 5;
 
@@ -35,7 +35,7 @@ let images = [
     id: 1,
     title: "Yellow Flower",
     imageUrl: "https://cdn.mos.cms.futurecdn.net/oX5kRV4Bx8JENXbqxMwaQK.jpg",
-    imageDate:"2024-06-12",
+    imageDate:"2024-04-12",
     description: "A beautiful yellow flower",
     predominantColor:""
 }, 
@@ -43,7 +43,7 @@ let images = [
     id: 2,
     title: "Sleeping Cat",
     imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmQE7iVPEL0zQ_Nv4WeNUc54kT9g3gJx1hxQ&s",
-    imageDate:"2024-06-12",
+    imageDate:"2023-06-12",
     description: "A cute sleeping cat with his paws on the air",
     predominantColor:"",
 }, 
@@ -51,20 +51,20 @@ let images = [
     id: 3,
     title: "Van Gogh - Starry Night",
     imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
-    imageDate:"2024-06-12",
+    imageDate:"2024-05-12",
     description: "An iconic painting by Vincent van Gogh, showcasing a swirling night sky over a tranquil village.",
     predominantColor:"",
 }, {
     id: 4,
     title: "Villefranche-sur-Mer",
     imageUrl: "https://www.explorenicecotedazur.com/content/uploads/2023/07/11945679.jpg",
-    imageDate:"2024-06-12",
+    imageDate:"2024-07-12",
     description: "A picturesque town in Nice, Côte d'Azur, known for its stunning coastal views and charming architecture.",
     predominantColor:"",
 }];
 
 
-// Añadir las condiciones para obtener el color predominantede una imagen
+// Añadir las condiciones para obtener el color predominante de una imagen usando el modulo Vibrant
 
 const getColorFromImage = async (url) => {
     const response = await fetch(url);
@@ -76,7 +76,7 @@ const getColorFromImage = async (url) => {
     return `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
 };
 
-// Actualizar el color de las imagenes predeterminadas de la pagina web.
+// Actualizar el color de las imagenes predeterminadas de la pagina web cuando abrimos la pagina
 const updateColorDBimages = async () => {
     for (let image of images) {
         if (!image.predominantColor) {
@@ -92,9 +92,14 @@ updateColorDBimages().then(() => {
     console.error('Error actualizando los colores predominantes:', error);
 });
 
-// When the client does a GET petition to '/' we render the home.ejs
-app.get('/', (req,res) => {
+// Añadimos una función para poder filtrar las imagenes por fecha
+const sortImgByDate = (array) => {
+    return array.sort((a, b) => new Date(a.imageDate) - new Date(b.imageDate));
+};
 
+// When the client does a GET request to '/' we render the home.ejs
+app.get('/', (req,res) => {
+    sortImgByDate(images);
     // 2. Usar en el home.ejs el forEach para iterar por todas las imágenes de la variable 'images'. Mostrar de momento solo el título 
     res.render('home', {
         images
@@ -129,7 +134,7 @@ app.get('/add-image-form', (req,res) => {
     });
 });
 
-// Cuando no hagan una peticion POST a '/add-image-form' tenemos que recibir los datos del formulario y actualizar nuestra "base de datos"
+// Cuando nos hagan una peticion POST a '/add-image-form' tenemos que recibir los datos del formulario y actualizar nuestra "base de datos"
 app.post('/add-image-form' , async (req,res) => {
     // Todos los datos vienen en req.body
     console.log(req.body);
@@ -137,6 +142,7 @@ app.post('/add-image-form' , async (req,res) => {
     const { title , imageUrl , imageDate , description , category } = req.body;
     
     // hacemos la validacion si la imagen ya existe en nuestra base de datos mediante validación URL
+    // hacemos validación para los characters del titulo.
     const urlValidation = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/;
     const titleValidation = /^[a-zA-Z0-9_ ]{1,30}$/;
 
@@ -169,7 +175,8 @@ app.post('/add-image-form' , async (req,res) => {
         id: id++,
         title, 
         imageUrl, 
-        imageDate, 
+        imageDate,
+        description, 
         predominantColor
     });
 
@@ -187,7 +194,7 @@ app.post('/images/:id/delete', (req,res) => {
     res.redirect('/');
 })
 
-// Iniciar el servidor
+// Start the server
 app.listen(PORT, (req, res) => {
     console.log("Server listening on port " + PORT);
 });
