@@ -8,9 +8,9 @@
 
 2. Dependencies used in the project
 
-`Express`: Web application framework for Node.js
-`Morgan`: Request logger middleware for Node.js
-`Node-Vibrant`: Library in charge of extracting the dominant colors from an image. 
+- `Express`: Web application framework for Node.js
+- `Morgan`: Request logger middleware for Node.js
+- `Node-Vibrant`: Library in charge of extracting the dominant colors from an image. 
 
 2. Start the server
 
