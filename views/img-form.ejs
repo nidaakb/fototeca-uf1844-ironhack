@@ -14,8 +14,7 @@
     </header>
     <form class="container" action="/add-image-form" method="post">
         <label for="title">Name</label>
-        <input type="text" name="title" id="title" maxlength="30" required>
-
+        <input type="text" name="title" id="title" maxlength="30" pattern="[0-9A-Za-z\s_]+" title="Image titles can only contain letters, numbers, spaces and underscores."required>
         <label for="imageUrl">URL</label>
         <input type="url" name="imageUrl" id="imageUrl" required>
 
