@@ -2,6 +2,23 @@
 const express = require('express');
 const morgan = require('morgan');
 const Vibrant = require('node-vibrant');
+const { MongoClient , ServerApiVersion } = require('mongodb');
+
+// Connection string for mongodb
+const uri = "mongodb+srv://nidaakabbaj1997:nidaa@cluster0.8rxwus1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+}
+);
+
+// Varibale glogabl para gestionar nuestra base de datos
+let database;
 
 // We create an the express server instant
 const app = express();
@@ -30,38 +47,7 @@ app.use(morgan('dev'));
 let id = 5;
 
 // Base de datos de imágenes
-let images = [
-    {
-    id: 1,
-    title: "Yellow Flower",
-    imageUrl: "https://cdn.mos.cms.futurecdn.net/oX5kRV4Bx8JENXbqxMwaQK.jpg",
-    imageDate:"2024-04-12",
-    description: "A beautiful yellow flower",
-    predominantColor:""
-}, 
-{
-    id: 2,
-    title: "Sleeping Cat",
-    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmQE7iVPEL0zQ_Nv4WeNUc54kT9g3gJx1hxQ&s",
-    imageDate:"2023-06-12",
-    description: "A cute sleeping cat with his paws on the air",
-    predominantColor:"",
-}, 
-{
-    id: 3,
-    title: "Van Gogh - Starry Night",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
-    imageDate:"2024-05-12",
-    description: "An iconic painting by Vincent van Gogh, showcasing a swirling night sky over a tranquil village.",
-    predominantColor:"",
-}, {
-    id: 4,
-    title: "Villefranche-sur-Mer",
-    imageUrl: "https://www.explorenicecotedazur.com/content/uploads/2023/07/11945679.jpg",
-    imageDate:"2024-07-12",
-    description: "A picturesque town in Nice, Côte d'Azur, known for its stunning coastal views and charming architecture.",
-    predominantColor:"",
-}];
+let images = [];
 
 
 // Añadir las condiciones para obtener el color predominante de una imagen usando el modulo Vibrant
@@ -77,6 +63,7 @@ const getColorFromImage = async (url) => {
 };
 
 // Actualizar el color de las imagenes predeterminadas de la pagina web cuando abrimos la pagina
+/** 
 const updateColorDBimages = async () => {
     for (let image of images) {
         if (!image.predominantColor) {
@@ -91,6 +78,8 @@ updateColorDBimages().then(() => {
 }).catch(error => {
     console.error('Error actualizando los colores predominantes:', error);
 });
+
+*/
 
 // Añadimos una función para poder filtrar las imagenes por fecha
 const sortImgByDate = (array) => {
@@ -171,6 +160,7 @@ app.post('/add-image-form' , async (req,res) => {
 
     const predominantColor = await getColorFromImage(imageUrl);
 
+    /** 
     images.push({ 
         id: id++,
         title, 
@@ -179,6 +169,16 @@ app.post('/add-image-form' , async (req,res) => {
         description, 
         predominantColor
     });
+*/
+    // Insertar el nuevo documento en la colección images
+    database.collection('images').insertOne({
+        title,
+        imageUrl,
+        imageDate: new Date(imageDate),
+        description,
+        predominantColor,
+        
+    })
 
     res.render('img-form', {
         isImagePostedOk: true,
@@ -195,6 +195,20 @@ app.post('/images/:id/delete', (req,res) => {
 })
 
 // Start the server
-app.listen(PORT, (req, res) => {
+app.listen(PORT, async (req, res) => {
     console.log("Server listening on port " + PORT);
+
+     // cuando levantamos el servidor nos conectamos a MongoDB
+    try {
+        await client.connect();
+
+        // seleccionamos la base de datos
+        database = client.db("photo_gallery");
+
+        // Mensaje de confirmación de que nos hemos conectado a la base de datos
+        console.log("Conexión a la base de datos OK.")
+
+    } catch (err) {
+        console.error(err);
+    }
 });
