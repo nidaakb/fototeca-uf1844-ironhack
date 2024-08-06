@@ -90,6 +90,11 @@ const sortImgByDate = (array) => {
 app.get('/', (req,res) => {
     sortImgByDate(images);
     // 2. Usar en el home.ejs el forEach para iterar por todas las imágenes de la variable 'images'. Mostrar de momento solo el título 
+
+    // TODO: Modificar este código para que ahora las imágenes que pasamos a la vista vengan todas de nuestra instancia de MongoDB (usar el find adecuadamente): 19:00h
+
+    const images = database.collection('images').find().toArray();
+
     res.render('home', {
         images
     });
@@ -124,14 +129,10 @@ app.get('/add-image-form', (req,res) => {
 });
 
 // Cuando nos hagan una peticion POST a '/add-image-form' tenemos que recibir los datos del formulario y actualizar nuestra "base de datos"
-app.post('/add-image-form' , async (req,res) => {
-    // Todos los datos vienen en req.body
-    console.log(req.body);
-    // 1 - Actualizar el array 'images' con la informacion del req.body
-    const { title , imageUrl , imageDate , description , category } = req.body;
-    
-    // hacemos la validacion si la imagen ya existe en nuestra base de datos mediante validación URL
-    // hacemos validación para los characters del titulo.
+app.post('/add-image-form', async (req, res) => {
+    const { title, imageUrl, imageDate, description, category } = req.body;
+
+    // Validación de la URL y el título
     const urlValidation = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/;
     const titleValidation = /^[a-zA-Z0-9_ ]{1,30}$/;
 
@@ -149,42 +150,40 @@ app.post('/add-image-form' , async (req,res) => {
         });
     }
 
-    const imageExists = images.some(image => image.imageUrl === imageUrl);
+    // **Comprobar si la URL está repetida**
+    try {
+        const image = await database.collection('images').findOne({ imageUrl: imageUrl });
+        if (image) {
+            return res.render('img-form', {
+                isImagePostedOk: false,
+                message: 'This URL already exists in our database.'
+            });
+        }
 
-    if (imageExists) {
-        return res.render('img-form', {
-            isImagePostedOk: false,
-            message: 'This URL already exists in our database.'
+        // Si la URL no está repetida, obtener el color predominante
+        const predominantColor = await getColorFromImage(imageUrl);
+
+        // Insertar el nuevo documento en la colección images
+        await database.collection('images').insertOne({
+            title,
+            imageUrl,
+            imageDate: new Date(imageDate),
+            description,
+            predominantColor,
+            category
         });
+
+        // Renderizar el formulario con éxito
+        res.render('img-form', {
+            isImagePostedOk: true,
+            message: 'Image added successfully!'
+        });
+    } catch (error) {
+        console.error('Error while checking/inserting image:', error);
+        res.status(500).send('There was an error processing your request.');
     }
-
-    const predominantColor = await getColorFromImage(imageUrl);
-
-    /** 
-    images.push({ 
-        id: id++,
-        title, 
-        imageUrl, 
-        imageDate,
-        description, 
-        predominantColor
-    });
-*/
-    // Insertar el nuevo documento en la colección images
-    database.collection('images').insertOne({
-        title,
-        imageUrl,
-        imageDate: new Date(imageDate),
-        description,
-        predominantColor,
-        
-    })
-
-    res.render('img-form', {
-        isImagePostedOk: true,
-        message: ''
-    });
 });
+
 
 // Endpoint para borrar una imagen
 app.post('/images/:id/delete', (req,res) => {
